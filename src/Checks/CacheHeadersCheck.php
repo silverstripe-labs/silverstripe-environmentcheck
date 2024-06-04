@@ -89,7 +89,6 @@ class CacheHeadersCheck implements EnvironmentCheck
                 $this->getMessage(),
             ];
         } else {
-            // @todo Ability to return a warning
             return [
                 EnvironmentCheck::ERROR,
                 $this->getMessage(),
