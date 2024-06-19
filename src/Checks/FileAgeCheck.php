@@ -85,7 +85,7 @@ class FileAgeCheck implements EnvironmentCheck
         $this->path = $path;
         $this->relativeAge = $relativeAge;
         $this->checkFn = $checkFn;
-        $this->checkType = ($checkType) ? $checkType : self::CHECK_SINGLE;
+        $this->checkType = ($checkType) ? $checkType : FileAgeCheck::CHECK_SINGLE;
         $this->compareOperand = $compareOperand;
     }
 
@@ -110,7 +110,7 @@ class FileAgeCheck implements EnvironmentCheck
                     $validFiles[] = $file;
                 } else {
                     $invalidFiles[] = $file;
-                    if ($this->checkType == self::CHECK_ALL) {
+                    if ($this->checkType == FileAgeCheck::CHECK_ALL) {
                         return [
                             EnvironmentCheck::ERROR,
                             sprintf(
@@ -127,7 +127,7 @@ class FileAgeCheck implements EnvironmentCheck
         }
 
         // If at least one file was valid, count as passed
-        if ($this->checkType == self::CHECK_SINGLE && count($invalidFiles ?? []) < count($files ?? [])) {
+        if ($this->checkType == FileAgeCheck::CHECK_SINGLE && count($invalidFiles ?? []) < count($files ?? [])) {
             return [EnvironmentCheck::OK, ''];
         }
         if (count($invalidFiles ?? []) == 0) {

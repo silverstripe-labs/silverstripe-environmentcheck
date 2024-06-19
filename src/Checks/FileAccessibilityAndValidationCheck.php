@@ -80,7 +80,7 @@ class FileAccessibilityAndValidationCheck implements EnvironmentCheck
     {
         $this->path = $path;
         $this->fileTypeValidateFunc = ($fileTypeValidateFunc)? $fileTypeValidateFunc : 'noVidation';
-        $this->checkType = ($checkType) ? $checkType : self::CHECK_SINGLE;
+        $this->checkType = ($checkType) ? $checkType : FileAccessibilityAndValidationCheck::CHECK_SINGLE;
     }
 
     /**
@@ -109,7 +109,9 @@ class FileAccessibilityAndValidationCheck implements EnvironmentCheck
                 }
 
                 // If at least one file was valid, count as passed
-                if ($this->checkType == self::CHECK_SINGLE && count($invalidFiles ?? []) < count($files ?? [])) {
+                if ($this->checkType == FileAccessibilityAndValidationCheck::CHECK_SINGLE
+                    && count($invalidFiles ?? []) < count($files ?? [])
+                ) {
                     $validFileList = PHP_EOL;
                     foreach ($validFiles as $vf) {
                         $validFileList .= $vf . PHP_EOL;

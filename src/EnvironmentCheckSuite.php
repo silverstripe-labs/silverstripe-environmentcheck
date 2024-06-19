@@ -74,7 +74,8 @@ class EnvironmentCheckSuite
     public function __construct($suiteName)
     {
         if (empty($this->config()->registered_suites[$suiteName])) {
-            // Not registered via config system, but it still may be configured later via self::register.
+            // Not registered via config system, but it still may be configured later
+            // via EnvironmentCheckSuite::register.
             return;
         }
 
@@ -181,10 +182,10 @@ class EnvironmentCheckSuite
      */
     public static function inst($name)
     {
-        if (!isset(self::$instances[$name])) {
-            self::$instances[$name] = new EnvironmentCheckSuite($name);
+        if (!isset(EnvironmentCheckSuite::$instances[$name])) {
+            EnvironmentCheckSuite::$instances[$name] = new EnvironmentCheckSuite($name);
         }
-        return self::$instances[$name];
+        return EnvironmentCheckSuite::$instances[$name];
     }
 
     /**
@@ -201,7 +202,7 @@ class EnvironmentCheckSuite
         }
 
         foreach ($names as $name) {
-            self::inst($name)->push($check, $title);
+            EnvironmentCheckSuite::inst($name)->push($check, $title);
         }
     }
 
@@ -210,6 +211,6 @@ class EnvironmentCheckSuite
      */
     public static function reset()
     {
-        self::$instances = [];
+        EnvironmentCheckSuite::$instances = [];
     }
 }
