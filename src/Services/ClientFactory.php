@@ -2,6 +2,7 @@
 
 namespace SilverStripe\EnvironmentCheck\Services;
 
+use Psr\Http\Client\ClientInterface;
 use GuzzleHttp\Client as GuzzleClient;
 use SilverStripe\Core\Injector\Factory;
 use SilverStripe\Core\Config\Configurable;
@@ -28,7 +29,7 @@ class ClientFactory implements Factory
      *
      * {@inheritdoc}
      */
-    public function create($service, array $params = [])
+    public function create(string $service, array $params = []): ClientInterface
     {
         return new GuzzleClient($this->getConfig($params));
     }
