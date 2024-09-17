@@ -3,16 +3,16 @@
 namespace SilverStripe\EnvironmentCheck;
 
 use InvalidArgumentException;
-use SilverStripe\ORM\ArrayList;
-use SilverStripe\View\ArrayData;
-use SilverStripe\View\ViewableData;
+use SilverStripe\Model\List\ArrayList;
+use SilverStripe\Model\ArrayData;
+use SilverStripe\Model\ModelData;
 
 /**
  * A single set of results from running an EnvironmentCheckSuite
  *
  * @package environmentcheck
  */
-class EnvironmentCheckSuiteResult extends ViewableData
+class EnvironmentCheckSuiteResult extends ModelData
 {
     /**
      * @var ArrayList
