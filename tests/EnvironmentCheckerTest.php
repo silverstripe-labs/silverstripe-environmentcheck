@@ -35,7 +35,7 @@ class EnvironmentCheckerTest extends SapphireTest
 
         $logger = $this->getMockBuilder(Logger::class)
             ->disableOriginalConstructor()
-            ->setMethods(['log'])
+            ->onlyMethods(['log'])
             ->getMock();
 
         $logger->expects($this->never())->method('log');
@@ -55,15 +55,17 @@ class EnvironmentCheckerTest extends SapphireTest
 
         $logger = $this->getMockBuilder(Logger::class)
             ->disableOriginalConstructor()
-            ->setMethods(['log'])
+            ->onlyMethods(['log'])
             ->getMock();
 
-        $logger->expects($this->once())
+        $matcher = $this->once();
+        $logger->expects($matcher)
             ->method('log')
-            ->withConsecutive(
-                [$this->equalTo(LogLevel::WARNING)],
-                [$this->anything()]
-            );
+            ->willReturnCallback(function (mixed $level) use ($matcher) {
+                match ($matcher->numberOfInvocations()) {
+                    1 => $this->assertSame(LogLevel::WARNING, $level),
+                };
+            });
 
         Injector::inst()->registerService($logger, LoggerInterface::class);
 
@@ -80,15 +82,17 @@ class EnvironmentCheckerTest extends SapphireTest
 
         $logger = $this->getMockBuilder(Logger::class)
             ->disableOriginalConstructor()
-            ->setMethods(['log'])
+            ->onlyMethods(['log'])
             ->getMock();
 
-        $logger->expects($this->once())
+        $matcher = $this->once();
+        $logger->expects($matcher)
             ->method('log')
-            ->withConsecutive(
-                [$this->equalTo(LogLevel::ALERT), $this->anything()],
-                [$this->equalTo(LogLevel::WARNING), $this->anything()]
-            );
+            ->willReturnCallback(function (mixed $level) use ($matcher) {
+                match ($matcher->numberOfInvocations()) {
+                    1 => $this->assertSame(LogLevel::ALERT, $level),
+                };
+            });
 
         Injector::inst()->registerService($logger, LoggerInterface::class);
 
