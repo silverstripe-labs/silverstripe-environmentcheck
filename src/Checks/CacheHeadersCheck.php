@@ -4,7 +4,7 @@ namespace SilverStripe\EnvironmentCheck\Checks;
 
 use SilverStripe\Control\Director;
 use SilverStripe\Control\Controller;
-use SilverStripe\ORM\ValidationResult;
+use SilverStripe\Core\Validation\ValidationResult;
 use Psr\Http\Message\ResponseInterface;
 use SilverStripe\Core\Config\Configurable;
 use SilverStripe\EnvironmentCheck\Traits\Fetcher;
