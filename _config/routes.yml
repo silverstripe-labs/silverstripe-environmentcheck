@@ -4,14 +4,12 @@ Name: environmentcheckroutes
 SilverStripe\Control\Director:
   rules:
     'health/check': 'Silverstripe\EnvironmentCheck\Controllers\DevHealthController'
-    'dev/check/$Suite': 'Silverstripe\EnvironmentCheck\Controllers\DevCheckController'
 
 SilverStripe\Dev\DevelopmentAdmin:
-  registered_controllers:
+  controllers:
     check:
-      controller: Silverstripe\EnvironmentCheck\Controllers\DevCheckController
-      links:
-        check: 'Run registered environment checks and display their status'
+      class: Silverstripe\EnvironmentCheck\Controllers\DevCheckController
+      description: 'Run registered environment checks and display their status'
 
 ---
 Name: environmentcheckroutes-dev_urls-confirmation-exceptions

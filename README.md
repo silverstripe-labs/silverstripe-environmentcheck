@@ -73,7 +73,7 @@ SilverStripe\EnvironmentCheck\EnvironmentCheckSuite:
  * `HasClassCheck`: Check that the given class exists.
     This can be used to check that PHP modules or features are installed.
  * `FileWriteableCheck`: Check that the given file is writeable.
- * `FileAccessibilityAndValidationCheck`: Check that a given file is accessible and optionally matches a given format.   
+ * `FileAccessibilityAndValidationCheck`: Check that a given file is accessible and optionally matches a given format.
  * `FileAgeCheck`: Checks for the maximum age of one or more files or folders.
     Useful for files which should be frequently auto-generated,
     like static caches, as well as for backup files and folders.

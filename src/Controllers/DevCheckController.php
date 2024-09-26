@@ -14,6 +14,10 @@ use SilverStripe\EnvironmentCheck\EnvironmentChecker;
  */
 class DevCheckController extends Controller
 {
+    private static $url_handlers = [
+        '$Suite' => 'index',
+    ];
+
     /**
      * @var array
      */
