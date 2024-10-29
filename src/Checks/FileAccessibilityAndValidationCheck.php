@@ -3,7 +3,7 @@
 namespace SilverStripe\EnvironmentCheck\Checks;
 
 use SilverStripe\EnvironmentCheck\EnvironmentCheck;
-use SilverStripe\Versioned\Versioned;
+use SilverStripe\Versioned\Mode\Versioned;
 
 /**
  * Checks for the accessibility and file type validation of one or more files or folders.
