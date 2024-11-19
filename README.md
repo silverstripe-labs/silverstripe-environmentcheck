@@ -1,7 +1,6 @@
 # Silverstripe Environment Checker Module
 
 [![CI](https://github.com/silverstripe/silverstripe-environmentcheck/actions/workflows/ci.yml/badge.svg)](https://github.com/silverstripe/silverstripe-environmentcheck/actions/workflows/ci.yml)
-[![Silverstripe supported module](https://img.shields.io/badge/silverstripe-supported-0071C4.svg)](https://www.silverstripe.org/software/addons/silverstripe-commercially-supported-module-list/)
 
 This module adds an API for running environment checks to your API.
 
