@@ -4,6 +4,7 @@ namespace SilverStripe\EnvironmentCheck;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use SilverStripe\Control\Controller;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\Email\Email;
 use SilverStripe\Control\HTTPResponse;
@@ -108,9 +109,10 @@ class EnvironmentChecker extends RequestHandler
             && Environment::getEnv('ENVCHECK_BASICAUTH_PASSWORD')
         ) {
             // Check that details are both provided, and match
-            if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW'])
-                || $_SERVER['PHP_AUTH_USER'] != Environment::getEnv('ENVCHECK_BASICAUTH_USERNAME')
-                || $_SERVER['PHP_AUTH_PW'] != Environment::getEnv('ENVCHECK_BASICAUTH_PASSWORD')
+            $request = Controller::curr()->request;
+            if (empty($request->getHeader('PHP_AUTH_USER')) || empty($request->getHeader('PHP_AUTH_PW'))
+                || $request->getHeader('PHP_AUTH_USER') != Environment::getEnv('ENVCHECK_BASICAUTH_USERNAME')
+                || $request->getHeader('PHP_AUTH_PW') != Environment::getEnv('ENVCHECK_BASICAUTH_PASSWORD')
             ) {
                 // Fail check with basic auth challenge
                 $response = new HTTPResponse(null, 401);
