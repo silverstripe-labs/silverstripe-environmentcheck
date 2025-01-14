@@ -104,28 +104,30 @@ class EnvironmentChecker extends RequestHandler
      */
     public function init($permission = 'ADMIN')
     {
-        // if the environment supports it, provide a basic auth challenge and see if it matches configured credentials
-        if (Environment::getEnv('ENVCHECK_BASICAUTH_USERNAME')
-            && Environment::getEnv('ENVCHECK_BASICAUTH_PASSWORD')
-        ) {
-            // Check that details are both provided, and match
-            $request = Controller::curr()->request;
-            if (empty($request->getHeader('PHP_AUTH_USER')) || empty($request->getHeader('PHP_AUTH_PW'))
-                || $request->getHeader('PHP_AUTH_USER') != Environment::getEnv('ENVCHECK_BASICAUTH_USERNAME')
-                || $request->getHeader('PHP_AUTH_PW') != Environment::getEnv('ENVCHECK_BASICAUTH_PASSWORD')
+        if (!$this->canAccess(null, $permission)) {
+            // if the environment supports it, provide a basic auth challenge and see if it matches configured credentials
+            if (Environment::getEnv('ENVCHECK_BASICAUTH_USERNAME')
+                && Environment::getEnv('ENVCHECK_BASICAUTH_PASSWORD')
             ) {
-                // Fail check with basic auth challenge
-                $response = new HTTPResponse(null, 401);
-                $response->addHeader('WWW-Authenticate', "Basic realm=\"Environment check\"");
-                throw new HTTPResponse_Exception($response);
+                // Check that details are both provided, and match
+                $request = Controller::curr()->request;
+                if (empty($request->getHeader('PHP_AUTH_USER')) || empty($request->getHeader('PHP_AUTH_PW'))
+                    || $request->getHeader('PHP_AUTH_USER') != Environment::getEnv('ENVCHECK_BASICAUTH_USERNAME')
+                    || $request->getHeader('PHP_AUTH_PW') != Environment::getEnv('ENVCHECK_BASICAUTH_PASSWORD')
+                ) {
+                    // Fail check with basic auth challenge
+                    $response = new HTTPResponse(null, 401);
+                    $response->addHeader('WWW-Authenticate', "Basic realm=\"Environment check\"");
+                    throw new HTTPResponse_Exception($response);
+                }
+            } else {
+                // Fail check with silverstripe login challenge
+                $result = Security::permissionFailure(
+                    $this,
+                    "You must have the {$permission} permission to access this check"
+                );
+                throw new HTTPResponse_Exception($result);
             }
-        } elseif (!$this->canAccess(null, $permission)) {
-            // Fail check with silverstripe login challenge
-            $result = Security::permissionFailure(
-                $this,
-                "You must have the {$permission} permission to access this check"
-            );
-            throw new HTTPResponse_Exception($result);
         }
     }
 
