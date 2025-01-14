@@ -105,7 +105,8 @@ class EnvironmentChecker extends RequestHandler
     public function init($permission = 'ADMIN')
     {
         if (!$this->canAccess(null, $permission)) {
-            // if the environment supports it, provide a basic auth challenge and see if it matches configured credentials
+            // if the environment supports it, provide a basic auth challenge
+            // and see if it matches configured credentials
             if (Environment::getEnv('ENVCHECK_BASICAUTH_USERNAME')
                 && Environment::getEnv('ENVCHECK_BASICAUTH_PASSWORD')
             ) {
