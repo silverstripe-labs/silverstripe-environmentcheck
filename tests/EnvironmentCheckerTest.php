@@ -2,6 +2,7 @@
 
 namespace SilverStripe\EnvironmentCheck\Tests;
 
+use ReflectionProperty;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -10,6 +11,9 @@ use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\EnvironmentCheck\EnvironmentChecker;
 use SilverStripe\EnvironmentCheck\EnvironmentCheckSuite;
+use SilverStripe\Core\Environment;
+use SilverStripe\Core\Kernel;
+use SilverStripe\Control\HTTPResponse_Exception;
 
 /**
  * Class EnvironmentCheckerTest
@@ -93,5 +97,84 @@ class EnvironmentCheckerTest extends SapphireTest
         Injector::inst()->registerService($logger, LoggerInterface::class);
 
         (new EnvironmentChecker('test suite', 'test'))->index();
+    }
+
+    public static function provideBasicAuthAdminBypass(): array
+    {
+        return [
+            'logged-out-valid-creds' => [
+                'user' => 'logged-out',
+                'validCreds' => true,
+                'expectedSuccess' => true,
+            ],
+            'logged-out-invalid-creds' => [
+                'user' => 'logged-out',
+                'validCreds' => false,
+                'expectedSuccess' => false,
+            ],
+            'non-admin-valid-creds' => [
+                'user' => 'non-admin',
+                'validCreds' => true,
+                'expectedSuccess' => true,
+            ],
+            'non-admin-invalid-creds' => [
+                'user' => 'non-admin',
+                'validCreds' => false,
+                'expectedSuccess' => false,
+            ],
+            'admin-valid-creds' => [
+                'user' => 'admin',
+                'validCreds' => true,
+                'expectedSuccess' => true,
+            ],
+            'admin-invalid-creds' => [
+                'user' => 'admin',
+                'validCreds' => false,
+                'expectedSuccess' => true,
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider provideBasicAuthAdminBypass
+     */
+    public function testBasicAuthAdminBypass(
+        string $user,
+        bool $validCreds,
+        bool $expectedSuccess,
+    ): void {
+        // Pretend we're not using CLI which will bypass basic auth,
+        $reflectionCli = new ReflectionProperty(Environment::class, 'isCliOverride');
+        $reflectionCli->setAccessible(true);
+        $reflectionCli->setValue(false);
+        // Change from dev to test mode as dev mode will bypass basic auth
+        $kernel = Injector::inst()->get(Kernel::class);
+        $kernel->setEnvironment('test');
+        // Setup basic auth env variables
+        Environment::setEnv('ENVCHECK_BASICAUTH_USERNAME', 'test');
+        Environment::setEnv('ENVCHECK_BASICAUTH_PASSWORD', 'password');
+        // Log in or out
+        if ($user === 'admin') {
+            $this->logInWithPermission('ADMIN');
+        } elseif ($user === 'non-admin') {
+            $this->logInWithPermission('NOT_AN_ADMIN');
+        } else {
+            $this->logOut();
+        }
+        // Simulate passing in basic auth creds
+        $_SERVER['PHP_AUTH_USER'] = 'test';
+        $_SERVER['PHP_AUTH_PW'] = $validCreds ? 'password' : 'invalid';
+        // Run test
+        $checker = new EnvironmentChecker('test suite', 'test');
+        $success = null;
+        try {
+            $checker->init();
+            $success = true;
+        } catch (HTTPResponse_Exception $e) {
+            $success = false;
+            $response = $e->getResponse();
+            $this->assertEquals(401, $response->getStatusCode());
+        }
+        $this->assertSame($expectedSuccess, $success);
     }
 }

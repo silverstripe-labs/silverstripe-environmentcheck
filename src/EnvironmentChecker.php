@@ -103,6 +103,11 @@ class EnvironmentChecker extends RequestHandler
      */
     public function init($permission = 'ADMIN')
     {
+        $canAccess = $this->canAccess(null, $permission);
+        // Allow bypassing basic-auth check if the user is logged in with the required permission
+        if ($canAccess) {
+            return;
+        }
         // if the environment supports it, provide a basic auth challenge and see if it matches configured credentials
         if (Environment::getEnv('ENVCHECK_BASICAUTH_USERNAME')
             && Environment::getEnv('ENVCHECK_BASICAUTH_PASSWORD')
@@ -117,13 +122,6 @@ class EnvironmentChecker extends RequestHandler
                 $response->addHeader('WWW-Authenticate', "Basic realm=\"Environment check\"");
                 throw new HTTPResponse_Exception($response);
             }
-        } elseif (!$this->canAccess(null, $permission)) {
-            // Fail check with silverstripe login challenge
-            $result = Security::permissionFailure(
-                $this,
-                "You must have the {$permission} permission to access this check"
-            );
-            throw new HTTPResponse_Exception($result);
         }
     }
 
