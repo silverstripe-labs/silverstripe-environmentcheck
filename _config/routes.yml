@@ -1,5 +1,6 @@
 ---
 Name: environmentcheckroutes
+Before: coreroutes
 ---
 SilverStripe\Control\Director:
   rules:

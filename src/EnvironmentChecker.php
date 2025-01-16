@@ -14,6 +14,7 @@ use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Permission;
 use SilverStripe\Security\Security;
+use SilverStripe\Security\BasicAuth;
 
 /**
  * Provides an interface for checking the given EnvironmentCheckSuite.
@@ -103,28 +104,44 @@ class EnvironmentChecker extends RequestHandler
      */
     public function init($permission = 'ADMIN')
     {
-        // if the environment supports it, provide a basic auth challenge and see if it matches configured credentials
-        if (Environment::getEnv('ENVCHECK_BASICAUTH_USERNAME')
-            && Environment::getEnv('ENVCHECK_BASICAUTH_PASSWORD')
-        ) {
-            // Check that details are both provided, and match
-            if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW'])
-                || $_SERVER['PHP_AUTH_USER'] != Environment::getEnv('ENVCHECK_BASICAUTH_USERNAME')
-                || $_SERVER['PHP_AUTH_PW'] != Environment::getEnv('ENVCHECK_BASICAUTH_PASSWORD')
-            ) {
-                // Fail check with basic auth challenge
-                $response = new HTTPResponse(null, 401);
-                $response->addHeader('WWW-Authenticate', "Basic realm=\"Environment check\"");
-                throw new HTTPResponse_Exception($response);
-            }
-        } elseif (!$this->canAccess(null, $permission)) {
-            // Fail check with silverstripe login challenge
-            $result = Security::permissionFailure(
-                $this,
-                "You must have the {$permission} permission to access this check"
-            );
-            throw new HTTPResponse_Exception($result);
+        $canAccess = $this->canAccess(null, $permission);
+        // Allow bypassing basic-auth check if the user is logged in with the required permission
+        if ($canAccess) {
+            return;
         }
+        // If basic auth is not configured, raise a permission failure
+        $basicAuthUsername = Environment::getEnv('ENVCHECK_BASICAUTH_USERNAME');
+        $basicAuthPassword = Environment::getEnv('ENVCHECK_BASICAUTH_PASSWORD');
+        if (!$basicAuthUsername || !$basicAuthPassword) {
+            $response = Security::permissionFailure();
+            throw new HTTPResponse_Exception($response);
+        }
+        // Check basic auth
+        $request = $this->getRequest();
+        $user = $request->getHeader('PHP_AUTH_USER');
+        $pw = $request->getHeader('PHP_AUTH_PW');
+        // Check that submitted basic auth credentials match
+        if ($user !== $basicAuthUsername || $pw !== $basicAuthPassword) {
+            // Fail check with basic auth challenge
+            $response = new HTTPResponse(null, 401);
+            $response->addHeader('WWW-Authenticate', "Basic realm=\"Environment check\"");
+            if ($user) {
+                $response->setBody(_t(
+                    BasicAuth::class . '.ERRORNOTREC',
+                    "That username / password isn't recognised"
+                ));
+            } else {
+                $response->setBody(_t(
+                    BasicAuth::class . '.ENTERINFO',
+                    'Please enter a username and password.'
+                ));
+            }
+            // Exception is caught by RequestHandler->handleRequest() and will halt further execution
+            $e = new HTTPResponse_Exception(null, 401);
+            $e->setResponse($response);
+            throw $e;
+        }
+        // If we get to this point, user has passed basic auth
     }
 
     /**

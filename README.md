@@ -112,7 +112,7 @@ SilverStripe\EnvironmentCheck\EnvironmentChecker:
 ## Authentication
 
 By default, accessing the `dev/check` URL will not require authentication on CLI and dev environments, but if you're
-trying to access it on a live or test environment, it will respond with a 403 HTTP status unless you're logged in as
+trying to access it on a live or test environment, it will respond with a 401 HTTP status unless you're logged in as
 an administrator on the site.
 
 You may wish to have an automated service check `dev/check` periodically, but not want to open it up for public access.
