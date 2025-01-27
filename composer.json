@@ -5,7 +5,6 @@
     "type": "silverstripe-vendormodule",
     "keywords": [
         "silverstripe",
-        "testing",
         "environment",
         "check"
     ],
